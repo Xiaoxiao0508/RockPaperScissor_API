@@ -35,34 +35,28 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("result")]
-        // public Gameresult Result([FromBody] Playerchoice playerchoice)
-        // {
-
-        //     gameresult = this.g1.GetGameresult(playerchoice);
-
-        //     //  string connectionString = @"Data Source=database-2.cckjgcdoazf1.us-east-1.rds.amazonaws.com;Initial Catalog=test;User ID=admin;Password=Kangcerking1";
-        //     SqlConnection connection = new SqlConnection(this.connnectionString);
-        //     string querystring = "Insert into Player(Username)Values('" + playerchoice.name + "')";
-        //     SqlCommand command = new SqlCommand(querystring, connection);
-        //     var adapter = new SqlDataAdapter();
-        //     connection.Open();
-        //     adapter.InsertCommand = new SqlCommand(querystring, connection);
-        //     adapter.InsertCommand.ExecuteNonQuery();
-        //     return gameresult;
-
-        // }
         public Gameresult Result([FromBody] Playerchoice playerchoice)
         {
 
             gameresult = this.g1.GetGameresult(playerchoice);
 
             string procedureName = "[dbo].[ADD_PLAYER]";
+            string procedure_AddGame="[dbo].[ADD_GAME]";
             SqlConnection connection = new SqlConnection(this.connnectionString);
             connection.Open();
             using (SqlCommand command = new SqlCommand(procedureName, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@name", playerchoice.name));
+                command.ExecuteNonQuery();
+            }
+              using (SqlCommand command = new SqlCommand(procedure_AddGame, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@UserName", playerchoice.name));
+                command.Parameters.Add(new SqlParameter("@GameStarted", DateTime.Now.ToString("MM/dd/yyyy HH:mm")));
+                command.Parameters.Add(new SqlParameter("@GameResult", gameresult.result));
+                command.Parameters.Add(new SqlParameter("@NumOfTurns", playerchoice.numberofrounds));
                 command.ExecuteNonQuery();
             }
             return gameresult;
