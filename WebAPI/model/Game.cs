@@ -8,9 +8,9 @@ namespace WebAPI.model
         public Player Player { get; set; }
         public string Result { get; set; }
         List<string> selectionlist = new List<string>();
-        resultlist resultlist = new resultlist();
+        // roundresult roundresult = new roundresult();
 
-        Allresult allresult = new Allresult();
+        Gameresult gameresult = new Gameresult();
         int turnsplayed = 1;
         int gamewin = 1;
 
@@ -20,62 +20,110 @@ namespace WebAPI.model
         {
             this.Player = player;
             this.Result = result;
-        }
-
-        public Game()
-        {
-        }
-        public resultlist getResult(Player p1)
-
-        {
-            List<resultlist> r1 = new List<resultlist>();
-            turnsplayed++;
             selectionlist.Add("rock");
             selectionlist.Add("paper");
             selectionlist.Add("scissor");
 
+        }
+
+        public Game()
+        {
+            selectionlist.Add("rock");
+            selectionlist.Add("paper");
+            selectionlist.Add("scissor");
+        }
+        public roundresult GetRoundResult(string playerchoice)
+
+        {
+            turnsplayed++;
             Random rand = new Random();
             int index = rand.Next(selectionlist.Count);
             string sysselection = selectionlist[index];
             Player sys = new Player("admin", sysselection);
-            Game g1 = new Game();
-            if (p1.Choice == sysselection)
+            if (playerchoice == sysselection)
             {
                 this.Result = "draw";
             }
-            else if ((p1.Choice == "rock" && sysselection == "scissor") || (p1.Choice == "paper" && sysselection == "rock") || (p1.Choice == "scissor" && sysselection == "paper"))
+            else if ((playerchoice == "rock" && sysselection == "scissor") || (playerchoice == "paper" && sysselection == "rock") || (playerchoice == "scissor" && sysselection == "paper"))
             {
                 this.Result = "win";
-                gamewin++;
+                // gamewin++;
             }
             else
             {
                 this.Result = "lose";
             }
-            resultlist.playername = p1.Name;
-            resultlist.playerchoice = p1.Choice;
-            resultlist.syschoice = sysselection;
-            resultlist.result = this.Result;
-            resultlist.turnsplayed = turnsplayed;
-            resultlist.gamewin = gamewin;
-            resultlist.winratio = gamewin / turnsplayed;
-            r1.Add(resultlist);
-            allresult.allresultdetail = r1;
-            return resultlist;
+
+            roundresult roundresult = new roundresult();
+
+            roundresult.playerchoice = playerchoice;
+            roundresult.syschoice = sysselection;
+            roundresult.resultofround = this.Result;
+
+
+            return roundresult;
         }
-        public Leaderboard GetAllresult()
+
+        public Gameresult GetGameresult(Playerchoice playerchoice)
 
         {
-            Leaderboard leaderboard = new Leaderboard();
-            Leaderboardline leaderboardline = new Leaderboardline();
-            leaderboardline.Name = this.resultlist.playername;
-            leaderboardline.Turnsplayed = this.resultlist.turnsplayed;
-            leaderboardline.Winratio = this.resultlist.winratio;
-            List<Leaderboardline> l1 = new List<Leaderboardline>();
-            l1.Add(leaderboardline);
-            leaderboard.Leaderboardlist = l1;
-            return leaderboard;
+            List<roundresult> allresult = new List<roundresult>();
+            int roundwins = 0;
+            int rounddraw=0;
+            int roundlose=0;
+            foreach (string choice in playerchoice.choices)
+            {
+                roundresult r=this.GetRoundResult(choice);
+                allresult.Add(r);
+            }
+           
+            gameresult.allresult = allresult;
+
+            foreach (var result in allresult)
+            {
+                if (result.resultofround == "win")
+                {
+                    roundwins++;
+                }
+                  if (result.resultofround == "lose")
+                {
+                    roundlose++;
+                }
+                 if (result.resultofround == "draw")
+                {
+                    rounddraw++;
+                }
+
+            }
+    
+            if (roundwins > playerchoice.numberofrounds / 2)
+            {
+                this.gameresult.result = "win";
+            }
+             else if (roundlose > playerchoice.numberofrounds / 2)
+            {
+                this.gameresult.result = "lose";
+            }
+            else
+            {
+                this.gameresult.result = "draw";
+            }
+
+            return gameresult;
         }
+        // public Leaderboard GetAllresult()
+
+        // {
+        //     Leaderboard leaderboard = new Leaderboard();
+        //     Leaderboardline leaderboardline = new Leaderboardline();
+        //     leaderboardline.Name = this.resultlist.playername;
+        //     leaderboardline.Turnsplayed = this.resultlist.turnsplayed;
+        //     leaderboardline.Winratio = this.resultlist.winratio;
+        //     List<Leaderboardline> l1 = new List<Leaderboardline>();
+        //     l1.Add(leaderboardline);
+        //     leaderboard.Leaderboardlist = l1;
+        //     return leaderboard;
+        // }
 
     }
 

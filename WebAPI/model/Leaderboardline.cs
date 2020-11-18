@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace WebAPI.model
 {
@@ -7,17 +8,13 @@ namespace WebAPI.model
       
 
         public string Name { get; set; }
-        public int Turnsplayed { get; set; }
-        public int Winratio { get; set; }
+        public int winratio { get; set; }
+        public int gameplayed{ get; set; }
+        public List<string> LastFive{get;set;}
           public Leaderboardline()
         {
         }
 
-        public Leaderboardline(string name, int turnsplayed, int winratio)
-        {
-            Name = name;
-            Turnsplayed = turnsplayed;
-            Winratio = winratio;
-        }
+       
     }
 }

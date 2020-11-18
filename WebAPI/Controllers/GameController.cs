@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,33 +35,51 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("result")]
+        // public Gameresult Result([FromBody] Playerchoice playerchoice)
+        // {
+
+        //     gameresult = this.g1.GetGameresult(playerchoice);
+
+        //     //  string connectionString = @"Data Source=database-2.cckjgcdoazf1.us-east-1.rds.amazonaws.com;Initial Catalog=test;User ID=admin;Password=Kangcerking1";
+        //     SqlConnection connection = new SqlConnection(this.connnectionString);
+        //     string querystring = "Insert into Player(Username)Values('" + playerchoice.name + "')";
+        //     SqlCommand command = new SqlCommand(querystring, connection);
+        //     var adapter = new SqlDataAdapter();
+        //     connection.Open();
+        //     adapter.InsertCommand = new SqlCommand(querystring, connection);
+        //     adapter.InsertCommand.ExecuteNonQuery();
+        //     return gameresult;
+
+        // }
         public Gameresult Result([FromBody] Playerchoice playerchoice)
         {
 
             gameresult = this.g1.GetGameresult(playerchoice);
 
-            //  string connectionString = @"Data Source=database-2.cckjgcdoazf1.us-east-1.rds.amazonaws.com;Initial Catalog=test;User ID=admin;Password=Kangcerking1";
+            string procedureName = "[dbo].[ADD_PLAYER]";
             SqlConnection connection = new SqlConnection(this.connnectionString);
-            string querystring = "Insert into Player(Username)Values('" + playerchoice.name + "')";
-            SqlCommand command = new SqlCommand(querystring, connection);
-            var adapter = new SqlDataAdapter();
             connection.Open();
-            adapter.InsertCommand = new SqlCommand(querystring, connection);
-            adapter.InsertCommand.ExecuteNonQuery();
+            using (SqlCommand command = new SqlCommand(procedureName, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@name", playerchoice.name));
+                command.ExecuteNonQuery();
+            }
             return gameresult;
-
         }
-
-        // [HttpGet("leaderboard")]
-        // public Leaderboard getleaderboard()
-        // {
-
-
-        //    return this.g1.GetAllresult();
-
-        // }
-
 
 
     }
+    // [HttpGet("leaderboard")]
+    // public Leaderboard getleaderboard()
+    // {
+
+
+    //    return this.g1.GetAllresult();
+
+    // }
+
+
+
 }
+

@@ -1,19 +1,16 @@
 using System;
+using System.Collections.Generic;
 
 namespace WebAPI.model
 {
     public class Playerchoice
     {
-      
-
-        public string playerchoice { get; set; }
-          public Playerchoice(string playerchoice)
-        {
-            this.playerchoice = playerchoice;
-        }
-
         public Playerchoice()
         {
         }
+
+        public string name { get; set; }
+        public int numberofrounds { get; set; }
+        public List<string> choices { get; set; }
     }
 }
