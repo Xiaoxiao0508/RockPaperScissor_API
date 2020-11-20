@@ -7,10 +7,10 @@ namespace WebAPI.model
     {
       
 
-        public string Name { get; set; }
+        public string name { get; set; }
         public int winratio { get; set; }
-        public int gameplayed{ get; set; }
-        public string LastFive{get;set;}
+        public int gamesplayed{ get; set; }
+        public string lastfive{get;set;}
           public Leaderboardline()
         {
         }

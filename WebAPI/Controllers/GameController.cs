@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
 
 
         [HttpGet("leaderboard")]
-        public Leaderboard getleaderboard(Playerchoice playerchoice)
+        public Leaderboard getleaderboard()
         {
             Leaderboard leaderboard = new Leaderboard();
             List<Leaderboardline> leaderboardlinelist=new List<Leaderboardline>();
@@ -82,15 +82,16 @@ FROM
   (SELECT UserName, LEFT(STRING_AGG(GameResult,'' ) WITHIN GROUP(ORDER BY GameStarted DESC),5) AS lastfive
   FROM Game
   Group by UserName) L
-  ON W.UserName=L.UserName";
+  ON W.UserName=L.UserName
+  ORDER BY winratio DESC";
             SqlCommand command = new SqlCommand(querystring, conn);
             using (SqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
                     leaderboardlinelist.Add(
-                        new Leaderboardline() { Name=reader[0].ToString(), winratio = (int)reader[1], gameplayed = (int)reader[2], LastFive= reader[3].ToString() });
-                        leaderboard.Leaderboardlist=leaderboardlinelist;
+                        new Leaderboardline() { name=reader[0].ToString(), winratio = (int)reader[1], gamesplayed = (int)reader[2], lastfive= reader[3].ToString() });
+                        leaderboard.leaderboardlist=leaderboardlinelist;
                 }
             }
 
