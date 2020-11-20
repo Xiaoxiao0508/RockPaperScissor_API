@@ -12,10 +12,6 @@ namespace WebAPI.model
 
         Gameresult gameresult = new Gameresult();
         int turnsplayed = 1;
-        int gamewin = 1;
-
-
-
         public Game(Player player, string result)
         {
             this.Player = player;
@@ -47,7 +43,6 @@ namespace WebAPI.model
             else if ((playerchoice == "rock" && sysselection == "scissor") || (playerchoice == "paper" && sysselection == "rock") || (playerchoice == "scissor" && sysselection == "paper"))
             {
                 this.Result = "win";
-                // gamewin++;
             }
             else
             {
@@ -111,19 +106,7 @@ namespace WebAPI.model
 
             return gameresult;
         }
-        // public Leaderboard GetAllresult()
-
-        // {
-        //     Leaderboard leaderboard = new Leaderboard();
-        //     Leaderboardline leaderboardline = new Leaderboardline();
-        //     leaderboardline.Name = this.resultlist.playername;
-        //     leaderboardline.Turnsplayed = this.resultlist.turnsplayed;
-        //     leaderboardline.Winratio = this.resultlist.winratio;
-        //     List<Leaderboardline> l1 = new List<Leaderboardline>();
-        //     l1.Add(leaderboardline);
-        //     leaderboard.Leaderboardlist = l1;
-        //     return leaderboard;
-        // }
+     
 
     }
 

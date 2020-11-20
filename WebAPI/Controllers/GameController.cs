@@ -26,52 +26,79 @@ namespace WebAPI.Controllers
         {
             this.configuration = iConfig;
             this.connnectionString = this.configuration.GetSection("DbConnectionString").Value;
-            // use the sqlconnecitonStringBuilder to create connection string
+            // use the sqlconnecitonStringBuilder to create connectionstring
             this.stringBuilder.DataSource = this.configuration.GetSection("Connection").GetSection("DataSource").Value;
             this.stringBuilder.InitialCatalog = this.configuration.GetSection("Connection").GetSection("InitialCatalog").Value;
             this.stringBuilder.UserID = this.configuration.GetSection("Connection").GetSection("ID").Value;
             this.stringBuilder.Password = this.configuration.GetSection("Connection").GetSection("Password").Value;
             this.connnectionString = stringBuilder.ConnectionString;
         }
-
         [HttpPost("result")]
         public Gameresult Result([FromBody] Playerchoice playerchoice)
         {
 
             gameresult = this.g1.GetGameresult(playerchoice);
 
-            string procedureName = "[dbo].[ADD_PLAYER]";
-            string procedure_AddGame="[dbo].[ADD_GAME]";
+
+            string procedure_AddGame = "[dbo].[ADD_GAME]";
             SqlConnection connection = new SqlConnection(this.connnectionString);
             connection.Open();
-            using (SqlCommand command = new SqlCommand(procedureName, connection))
-            {
-                command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.Add(new SqlParameter("@name", playerchoice.name));
-                command.ExecuteNonQuery();
-            }
-              using (SqlCommand command = new SqlCommand(procedure_AddGame, connection))
+            using (SqlCommand command = new SqlCommand(procedure_AddGame, connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.Add(new SqlParameter("@UserName", playerchoice.name));
                 command.Parameters.Add(new SqlParameter("@GameStarted", DateTime.Now.ToString("MM/dd/yyyy HH:mm")));
                 command.Parameters.Add(new SqlParameter("@GameResult", gameresult.result));
                 command.Parameters.Add(new SqlParameter("@NumOfTurns", playerchoice.numberofrounds));
+
                 command.ExecuteNonQuery();
             }
             return gameresult;
         }
 
 
+
+        [HttpGet("leaderboard")]
+        public Leaderboard getleaderboard(Playerchoice playerchoice)
+        {
+            Leaderboard leaderboard = new Leaderboard();
+            List<Leaderboardline> leaderboardlinelist=new List<Leaderboardline>();
+            Leaderboardline leaderboardline = new Leaderboardline();
+            SqlConnection conn = new SqlConnection(this.connnectionString);
+            conn.Open();
+            string querystring =@"SELECT G.UserName, (W.gameswin/G.gamesplayed) as winratio, G.gamesplayed, L.lastfive
+FROM
+  (SELECT COUNT(UserName) as gamesplayed, UserName
+  FROM Game
+  GROUP BY UserName)  G
+  INNER JOIN
+  (SELECT UserName, COUNT(*) AS gameswin
+  FROM Game
+  WHERE GameResult='W'
+  GROUP BY UserName)  W
+  ON
+  G.UserName=W.UserName
+  INNER JOIN
+  (SELECT UserName, LEFT(STRING_AGG(GameResult,'' ) WITHIN GROUP(ORDER BY GameStarted DESC),5) AS lastfive
+  FROM Game
+  Group by UserName) L
+  ON W.UserName=L.UserName";
+            SqlCommand command = new SqlCommand(querystring, conn);
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    leaderboardlinelist.Add(
+                        new Leaderboardline() { Name=reader[0].ToString(), winratio = (int)reader[1], gameplayed = (int)reader[2], LastFive= reader[3].ToString() });
+                        leaderboard.Leaderboardlist=leaderboardlinelist;
+                }
+            }
+
+
+            return leaderboard;
+
+        }
     }
-    // [HttpGet("leaderboard")]
-    // public Leaderboard getleaderboard()
-    // {
-
-
-    //    return this.g1.GetAllresult();
-
-    // }
 
 
 
