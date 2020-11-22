@@ -66,24 +66,24 @@ namespace WebAPI.Controllers
             Leaderboardline leaderboardline = new Leaderboardline();
             SqlConnection conn = new SqlConnection(this.connnectionString);
             conn.Open();
-            string querystring =@"SELECT G.UserName, (W.gameswin/G.gamesplayed) as winratio, G.gamesplayed, L.lastfive
+            string querystring =@"SELECT G.UserName, (G.gamesplayed/W.gameswin) AS winratio, G.gamesplayed, L.lastfive
 FROM
   (SELECT COUNT(UserName) as gamesplayed, UserName
   FROM Game
   GROUP BY UserName)  G
+  INNER JOIN
+  (SELECT UserName, LEFT(STRING_AGG(GameResult,'' ) WITHIN GROUP(ORDER BY GameStarted DESC),5) AS lastfive
+  FROM Game
+  Group by UserName) L
+  ON G.UserName=L.UserName
+
   LEFT JOIN
   (SELECT UserName, COUNT(*) AS gameswin
   FROM Game
   WHERE GameResult='W'
   GROUP BY UserName)  W
-  ON
-  G.UserName=W.UserName
-  LEFT JOIN
-  (SELECT UserName, LEFT(STRING_AGG(GameResult,'' ) WITHIN GROUP(ORDER BY GameStarted DESC),5) AS lastfive
-  FROM Game
-  Group by UserName) L
-  ON W.UserName=L.UserName
-  ORDER BY winratio DESC";
+  ON L.UserName=W.UserName
+ORDER BY winratio DESC";
             SqlCommand command = new SqlCommand(querystring, conn);
             using (SqlDataReader reader = command.ExecuteReader())
             {
