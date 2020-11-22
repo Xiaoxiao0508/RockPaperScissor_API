@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
             Leaderboardline leaderboardline = new Leaderboardline();
             SqlConnection conn = new SqlConnection(this.connnectionString);
             conn.Open();
-            string querystring =@"SELECT G.UserName, (G.gamesplayed/W.gameswin) AS winratio, G.gamesplayed, L.lastfive
+            string querystring =@"SELECT G.UserName, (100*W.gameswin/G.gamesplayed) AS winratio, G.gamesplayed, L.lastfive
 FROM
   (SELECT COUNT(UserName) as gamesplayed, UserName
   FROM Game
@@ -76,7 +76,6 @@ FROM
   FROM Game
   Group by UserName) L
   ON G.UserName=L.UserName
-
   LEFT JOIN
   (SELECT UserName, COUNT(*) AS gameswin
   FROM Game
