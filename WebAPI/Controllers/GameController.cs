@@ -71,14 +71,14 @@ FROM
   (SELECT COUNT(UserName) as gamesplayed, UserName
   FROM Game
   GROUP BY UserName)  G
-  INNER JOIN
+  LEFT JOIN
   (SELECT UserName, COUNT(*) AS gameswin
   FROM Game
   WHERE GameResult='W'
   GROUP BY UserName)  W
   ON
   G.UserName=W.UserName
-  INNER JOIN
+  LEFT JOIN
   (SELECT UserName, LEFT(STRING_AGG(GameResult,'' ) WITHIN GROUP(ORDER BY GameStarted DESC),5) AS lastfive
   FROM Game
   Group by UserName) L
@@ -88,9 +88,10 @@ FROM
             using (SqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
-                {
+                { 
+                   
                     leaderboardlinelist.Add(
-                        new Leaderboardline() { name=reader[0].ToString(), winratio = (int)reader[1], gamesplayed = (int)reader[2], lastfive= reader[3].ToString() });
+                        new Leaderboardline() { name=reader[0].ToString(), winratio =Convert.IsDBNull(reader[1])?0:(int)reader[1], gamesplayed = (int)reader[2], lastfive= reader[3].ToString() });
                         leaderboard.leaderboardlist=leaderboardlinelist;
                 }
             }
